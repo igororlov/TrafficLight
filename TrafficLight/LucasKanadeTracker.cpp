@@ -5,5 +5,3 @@ Rect LucasKanadeTracker::getNewCoords(Mat& previous, Mat& current, Rect oldCoord
 	Rect newCoords(oldCoords);
 	return newCoords;
 }
-
-

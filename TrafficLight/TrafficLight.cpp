@@ -3,13 +3,19 @@
 using namespace cv;
 
 static VideoCapture capture;
-static TrafficLightDetector detector(Rect(coordsTopLeft, coordsBottomRight));
+static TrafficLightDetector detector;
 static LucasKanadeTracker tracker;
+static int Hmin = 0;
+static int Hmax = 180;
+int HSVmax = 180;
+
+
 
 int main() {
 	
 	printf("***** Traffic lights app *****\n");
-
+	Mat trafficLightStructure = assignTrafficLightStructure();
+    
 	if (capture.open(VIDEO_PATH) == false) {
 		printf("Unable to open file...\n");
 		exit(1);
@@ -17,17 +23,25 @@ int main() {
 
 	double rate = capture.get(CV_CAP_PROP_FPS); // frames per second
 	int delay = 1000 / (int)rate;
-	namedWindow(WINDOW_NAME);
-	setMouseCallback(WINDOW_NAME, mouseCallback);
-
-	Mat previous, frame;
 	
+	namedWindow(MAIN_WINDOW_NAME);
+	setMouseCallback(MAIN_WINDOW_NAME, mouseCallback);
+
+    /*namedWindow(SETTINGS_WINDOW_NAME);
+	createTrackbar("Hmin", SETTINGS_WINDOW_NAME, &Hmin, HSVmax);
+	createTrackbar("Hmax", SETTINGS_WINDOW_NAME, &Hmax, HSVmax);*/
+
+	Mat previous, frame;	
 	while (capture.read(frame)) {
 
 		tracker.getNewCoords(previous, frame, coords);
-		detector.detect(frame);
+		
+		Mat result, concat;
+		Context context(coords, trafficLightStructure);
+		detector.brightnessDetect(frame, context, result);
+		hconcat(frame, result, concat);
 
-		imshow(WINDOW_NAME, frame);
+		imshow(MAIN_WINDOW_NAME, concat);
 
 		char c = waitKey(delay);
 		if (c == 27) {
@@ -56,5 +70,16 @@ void mouseCallback(int event, int x, int y, int flags, void* userdata) {
 		break;
 	}
 	coords = Rect(coordsTopLeft, coordsBottomRight);
-	detector.setCoords(coords);
+}
+
+
+Mat assignTrafficLightStructure() {
+	Mat trafficLightStructure(3, 2, CV_8U);
+	trafficLightStructure.at<uchar>(0,0) = 1;
+	trafficLightStructure.at<uchar>(0,1) = 0;
+	trafficLightStructure.at<uchar>(1,0) = 1;
+	trafficLightStructure.at<uchar>(1,1) = 0;
+	trafficLightStructure.at<uchar>(2,0) = 1;
+	trafficLightStructure.at<uchar>(2,1) = 1;
+	return trafficLightStructure;
 }

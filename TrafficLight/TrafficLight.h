@@ -10,10 +10,12 @@
 #include "TrafficLightDetector.h"
 #include "LucasKanadeTracker.h"
 
-#define WINDOW_NAME "Main"
+#define MAIN_WINDOW_NAME "Main"
+#define SETTINGS_WINDOW_NAME "Settings"
 #define VIDEO_PATH "C:\\Users\\Igor\\Dropbox\\IASA\\SAIT\\TrafficLight\\TrafficLight.mp4"
 
 // Functions declarations
+Mat assignTrafficLightStructure();
 void mouseCallback(int event, int x, int y, int flags, void* userdata);
 
 // Variables

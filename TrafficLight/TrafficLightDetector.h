@@ -8,16 +8,21 @@
 
 #define MY_COLOR_RED Scalar(0,0,255)
 #define MY_COLOR_GREEN Scalar(0,255,0)
+#define MY_COLOR_GREEN Scalar(0,255,0)
 
 using namespace cv;
 
+class Context {
+public:
+	Context(Rect aCoords, Mat aStructure) : coords(aCoords), trafficLightStructure(aStructure) {}
+	Rect coords;
+	Mat trafficLightStructure;
+};
+
 class TrafficLightDetector {
 public:
-	TrafficLightDetector(Rect aCoords);
-	void setCoords(Rect aCoords);
-	void detect(Mat &image);
-private:
-	Rect coords;
+	void brightnessDetect(const Mat &input, const Context context, Mat &output);
+	void colorDetect(const Mat &input, Mat &output, const Rect coords, int Hmin, int Hmax);
 };
 
 #endif
