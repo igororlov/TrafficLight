@@ -31,7 +31,7 @@ int main() {
 	createTrackbar("Hmin", SETTINGS_WINDOW_NAME, &Hmin, HSVmax);
 	createTrackbar("Hmax", SETTINGS_WINDOW_NAME, &Hmax, HSVmax);*/
 
-	Mat previous, frame;	
+	Mat previous, frame;
 	while (capture.read(frame)) {
 
 		tracker.getNewCoords(previous, frame, coords);

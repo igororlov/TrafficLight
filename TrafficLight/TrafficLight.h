@@ -12,7 +12,9 @@
 
 #define MAIN_WINDOW_NAME "Main"
 #define SETTINGS_WINDOW_NAME "Settings"
-#define VIDEO_PATH "C:\\Users\\Igor\\Dropbox\\IASA\\SAIT\\TrafficLight\\TrafficLight.mp4"
+#define VIDEO_DIR "C:\\Users\\Igor\\Dropbox\\IASA\\SAIT\\TrafficLight\\"
+#define VIDEO_FILENAME "merged_day.avi"
+#define VIDEO_PATH VIDEO_DIR VIDEO_FILENAME
 
 // Functions declarations
 Mat assignTrafficLightStructure();
