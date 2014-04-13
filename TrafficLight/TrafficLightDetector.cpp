@@ -39,31 +39,16 @@ void TrafficLightDetector::brightnessDetect(const Mat &input, const Context cont
 	}
 }
 
-void TrafficLightDetector::brightnessDetect(const Mat &input, const int thresh, Mat &output) {
-	
+void TrafficLightDetector::brightnessDetect(const Mat &input, Mat &output) {
 	cvtColor(input, output, CV_RGB2GRAY);
 
 	int dilation_size = 1;
 	Mat roi = output(Rect(RECT_TOP_LEFT, RECT_BOTTOM_RIGHT));
 	threshold(roi, roi, 0, 255, THRESH_BINARY | THRESH_OTSU);
-	Mat element = getStructuringElement(MORPH_ELLIPSE, Size(2*dilation_size + 1, 2*dilation_size + 1), Point(dilation_size, dilation_size));
-    //dilate(roi, roi, element); // TODO do we need? may be not
 
-	bool display_red = false;
-	bool display_yellow = false;
-	bool display_green = false;
-
-	if (getBrightnessRatioInCircle(output, RED_CENTER, LIGHT_RADIUS) > 0.5) {
-		display_red = true;
-	}
-
-	if (getBrightnessRatioInCircle(output, YELLOW_CENTER, LIGHT_RADIUS) > 0.5) {
-		display_yellow = true;
-	}
-
-	if (getBrightnessRatioInCircle(output, GREEN_CENTER, LIGHT_RADIUS) > 0.5) {
-		display_green = true;
-	}
+	bool display_red = (getBrightnessRatioInCircle(output, RED_CENTER, LIGHT_RADIUS) > 0.5);
+	bool display_yellow = (getBrightnessRatioInCircle(output, YELLOW_CENTER, LIGHT_RADIUS) > 0.5);
+	bool display_green = (getBrightnessRatioInCircle(output, GREEN_CENTER, LIGHT_RADIUS) > 0.5);
 
 	cvtColor(output, output, CV_GRAY2RGB);
 
@@ -87,11 +72,7 @@ double getBrightnessRatioInCircle(const Mat &input, const Point center, const in
 		}
 	}
 
-	double ratio = ((double)whitePoints) / (whitePoints + blackPoints);
-
-	//printf("ratio: %f\nwhitePoints: %d\nlackPoints: %d\n\n", ratio, whitePoints, blackPoints);
-
-	return ratio;
+	return ((double)whitePoints) / (whitePoints + blackPoints);
 }
 
 int getCurrentLightsCode(bool display_red, bool display_yellow, bool display_green) {
@@ -99,7 +80,7 @@ int getCurrentLightsCode(bool display_red, bool display_yellow, bool display_gre
 }
 
 LightState determineState(LightState previousState, int currentLightsCode) {
-	printf("Previous state: %d, currentCode: %d, Switched state to %d\n", previousState, currentLightsCode, STATE_TRANSITION_MATRIX[previousState][currentLightsCode]);
+	//printf("Previous state: %d, currentCode: %d, Switched state to %d\n", previousState, currentLightsCode, STATE_TRANSITION_MATRIX[previousState][currentLightsCode]);
 	return STATE_TRANSITION_MATRIX[previousState][currentLightsCode];	
 }
 

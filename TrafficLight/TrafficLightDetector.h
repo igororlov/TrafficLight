@@ -38,7 +38,7 @@ class TrafficLightDetector {
 public:
 	TrafficLightDetector();
 	void brightnessDetect(const Mat &input, const Context context, Mat &output);
-	void brightnessDetect(const Mat &input, const int thresh, Mat &output);
+	void brightnessDetect(const Mat &input, Mat &output);
 	void colorDetect(const Mat &input, Mat &output, const Rect coords, int Hmin, int Hmax);
 
 private:
