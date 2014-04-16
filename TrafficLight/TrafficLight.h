@@ -18,8 +18,8 @@
 #define RECT_BOTTOM_RIGHT Point(480,135)
 #define MAIN_WINDOW_NAME "Main"
 #define SETTINGS_WINDOW_NAME "Settings"
-#define VIDEO_DIR "C:\\Users\\Igor\\Dropbox\\IASA\\SAIT\\TrafficLight\\"
-#define VIDEO_FILENAME "merged_night.avi"
+#define VIDEO_DIR "D:\\TrafficLight\\"
+#define VIDEO_FILENAME "merged_day.avi"
 #define VIDEO_PATH VIDEO_DIR VIDEO_FILENAME
 
 // Functions declarations
