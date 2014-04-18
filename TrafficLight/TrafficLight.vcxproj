@@ -142,6 +142,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Context.cpp" />
     <ClCompile Include="LucasKanadeTracker.cpp" />
     <ClCompile Include="LucasKanadeTracker_old.cpp" />
     <ClCompile Include="TLVideoWriter.cpp" />
@@ -149,6 +150,7 @@
     <ClCompile Include="TrafficLightDetector.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Context.h" />
     <ClInclude Include="LucasKanadeTracker.h" />
     <ClInclude Include="TLVideoWriter.h" />
     <ClInclude Include="TrafficLight.h" />

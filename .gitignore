@@ -151,4 +151,9 @@ $RECYCLE.BIN/
 .DS_Store
 
 # Local video header
-*VideoPathLocal.h
+*VideoSettingsLocal.h
+
+# Large video files (not for GitHub)
+*2.mp4
+*VID_20140313_180927.mp4
+*output.avi

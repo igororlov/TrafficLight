@@ -5,15 +5,14 @@
 #include <opencv2\highgui\highgui.hpp>
 #include <opencv2\imgproc\imgproc.hpp>
 #include <opencv2\features2d\features2d.hpp>
+#include "Context.h"
+
+using namespace cv;
 
 #define MY_COLOR_RED Scalar(0,0,255)
 #define MY_COLOR_GREEN Scalar(0,255,0)
 #define MY_COLOR_YELLOW Scalar(60,255,255)
 #define MY_COLOR_WHITE Scalar(255,255,255)
-
-using namespace cv;
-
-enum LightState { GREEN, YELLOW, RED, REDYELLOW, UNDEFINED };
 
 const LightState STATE_TRANSITION_MATRIX[5][8] = { 
 	{ GREEN, RED, YELLOW, REDYELLOW, GREEN, GREEN, GREEN, UNDEFINED },
@@ -26,18 +25,6 @@ const LightState STATE_TRANSITION_MATRIX[5][8] = {
 double getBrightnessRatioInCircle(const Mat &input, const Point center, const int radius);
 int getCurrentLightsCode(bool display_red, bool display_yellow, bool display_green);
 LightState determineState(LightState previousState, int currentLightsCode);
-
-
-class Context {
-public:
-	Point redCenter;
-	Point yellowCenter;
-	Point greenCenter;
-	int lampRadius;
-	Point topLeft;
-	Point botRight;
-	LightState lightState;
-};
 
 class TrafficLightDetector {
 public:

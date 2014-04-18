@@ -7,7 +7,6 @@
 #include <opencv2\highgui\highgui.hpp>
 
 // Internal includes
-#include "VideoSettingsLocal.h"
 #include "TrafficLightDetector.h"
 #include "LucasKanadeTracker.h"
 
