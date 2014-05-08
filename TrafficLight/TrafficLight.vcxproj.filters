@@ -35,23 +35,23 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="TrafficLight.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TrafficLightDetector.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LucasKanadeTracker.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VideoSettingsLocal.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="Context.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TLVideoWriter.h">
-      <Filter>Source Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Context.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="LucasKanadeTracker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TrafficLightDetector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TrafficLight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VideoSettingsLocal.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
