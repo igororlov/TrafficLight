@@ -47,8 +47,12 @@ int main(int argc, char** argv)
   return 0;
 }
 
+static int detect_called = 0;
+
 void detect(IplImage *img)
 {
+	detect_called += 1;
+
   CvSize img_size = cvGetSize(img);
   CvSeq *object = cvHaarDetectObjects(
     img,
@@ -62,13 +66,33 @@ void detect(IplImage *img)
     );
 
   std::cout << "Total: " << object->total << " cars" << std::endl;
+  
+  /* Save images */
+  for(int i = 0 ; i < ( object ? object->total : 0 ) ; i++)
+  {
+		CvRect *r = (CvRect*)cvGetSeqElem(object, i);
+		cvSetImageROI(img, *r);
+		char filename[30];
+		char numbercalled[20];
+		itoa(detect_called, numbercalled, 10);
+		itoa(i, filename, 10);
+		strcat(filename, "-");
+		strcat(filename, numbercalled);
+		strcat(filename,".jpg");
+		cvSaveImage(filename, img);
+		cvResetImageROI(img);
+  }
+
+
   for(int i = 0 ; i < ( object ? object->total : 0 ) ; i++)
   {
     CvRect *r = (CvRect*)cvGetSeqElem(object, i);
-    cvRectangle(img,
+    
+	cvRectangle(img,
       cvPoint(r->x, r->y),
       cvPoint(r->x + r->width, r->y + r->height),
       CV_RGB(255, 0, 0), 2, 8, 0);
+	
   }
 
   cvShowImage("video", img);
