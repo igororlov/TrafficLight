@@ -150,9 +150,6 @@ $RECYCLE.BIN/
 # Mac crap
 .DS_Store
 
-# Local video header
-*VideoSettingsLocal.h
-
 # Large video files (not for GitHub)
 *2.mp4
 *VID_20140313_180927.mp4
