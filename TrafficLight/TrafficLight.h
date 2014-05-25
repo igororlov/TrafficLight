@@ -15,7 +15,7 @@
 #define SETTINGS_WINDOW_NAME "Settings"
 
 // Functions declarations
-void mouseCallback(int event, int x, int y, int flags, void* userdata);
+//void mouseCallback(int event, int x, int y, int flags, void* userdata);
 void setContexts(TrafficLightDetector &detector);
 void initMasks(char *pathToShowMask);
 void drawTrafficLights(Mat &targetImg, LightState lightState);

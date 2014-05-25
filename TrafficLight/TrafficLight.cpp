@@ -25,11 +25,11 @@ int main() {
 	int delay = 1000 / (int)rate; // in milliseconds
 	
 	namedWindow(MAIN_WINDOW_NAME);
-	setMouseCallback(MAIN_WINDOW_NAME, mouseCallback);
+	//setMouseCallback(MAIN_WINDOW_NAME, mouseCallback);
 
 	// Set up video writer
-	Size frameSize = Size(2*((int) capture.get(CV_CAP_PROP_FRAME_WIDTH)), (int) capture.get(CV_CAP_PROP_FRAME_HEIGHT));
-	TLVideoWriter writer(SAVE_VIDEO_TO_FILE, OUTPUT_VIDEO_FILENAME, -1, rate * VIEW_SPEEDUP, frameSize);
+	Size frameSize = Size((int) capture.get(CV_CAP_PROP_FRAME_WIDTH), (int) capture.get(CV_CAP_PROP_FRAME_HEIGHT));
+	TLVideoWriter writer(SAVE_VIDEO_TO_FILE, OUTPUT_VIDEO_FILENAME, -1, rate * 0.5, frameSize);
 	
 	setContexts(detector);
 	vehicleDetector.loadBackgroundImage(PATH_TO_BACKGROUND);
