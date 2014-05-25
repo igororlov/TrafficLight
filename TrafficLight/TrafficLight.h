@@ -20,7 +20,7 @@ void setContexts(TrafficLightDetector &detector);
 void initMasks(char *pathToShowMask);
 void drawTrafficLights(Mat &targetImg, LightState lightState);
 void drawEnforcement(Mat &targetImg, bool isEnforced, LightState lightState);
-
+void drawBoundedRects(Mat &targetImg, vector<Rect> boundedRects);
 
 #define RED_DRAW_CENTER Point(465,465)
 #define YELLOW_DRAW_CENTER Point(465,500)

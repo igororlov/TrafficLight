@@ -2,8 +2,6 @@
 #include "TLVideoWriter.h"
 #include "VideoSettingsLocal.h"
 
-FILE *outfile = fopen("bad.txt", "w");
-
 using namespace cv;
 
 // Variables
@@ -48,10 +46,13 @@ int main() {
 
 		cvtColor(frame, frame, CV_RGB2GRAY);
 		LightState lightState = detector.brightnessDetect(frame);
-		bool isEnforced = vehicleDetector.backgroundDetect(frame, vehicleResult);
+		vector<Rect> boundedRects;
+		bool isEnforced = vehicleDetector.backgroundDetect(frame, boundedRects);
 		
 		drawTrafficLights(resultImage, lightState);
 		drawEnforcement(resultImage, isEnforced, lightState);
+		drawBoundedRects(resultImage, boundedRects);
+
 		imshow(MAIN_WINDOW_NAME, resultImage);
 		
 		writer.write(resultImage);
@@ -65,46 +66,44 @@ int main() {
 		previous.release();
 		previous.data = frame.data;
 	}
-
-	fclose(outfile);
 	
 	capture.release();
 	
 	return 0;
 }
 
-static Point topleft;
-static Point botright;
-static Mat imgToSave;
-void mouseCallback(int event, int x, int y, int flags, void* userdata) {
-	static int frame_counter = 0;
-	static bool clickedOnce = false;
-	switch (event) {
-	case EVENT_LBUTTONDOWN:
-		if (!clickedOnce) {
-			printf("(%d,%d)\n", x, y);
-			topleft.x = x;
-			topleft.y = y;
-			clickedOnce = true;
-		} else {
-			botright.x = x;
-			botright.y = y;
-
-			frame_counter++;
-			char filename[300];
-			sprintf(filename, IMG_PATH_FORMAT, frame_counter);
-		
-			cvtColor(frame, imgToSave, CV_RGB2GRAY);
-			Rect roiRect(topleft, botright);
-			Mat roiImg = imgToSave(roiRect);
-			imwrite(filename, roiImg);
-			//fprintf(outfile, "%d.bmp 1 0 0 %d %d\n", frame_counter, roiRect.width, roiRect.height);
-			fprintf(outfile, "%d.bmp\n", frame_counter);
-			clickedOnce = false;
-		}
-		break;
-	}
-}
+//static Point topleft;
+//static Point botright;
+//static Mat imgToSave;
+//void mouseCallback(int event, int x, int y, int flags, void* userdata) {
+//	static int frame_counter = 0;
+//	static bool clickedOnce = false;
+//	switch (event) {
+//	case EVENT_LBUTTONDOWN:
+//		if (!clickedOnce) {
+//			printf("(%d,%d)\n", x, y);
+//			topleft.x = x;
+//			topleft.y = y;
+//			clickedOnce = true;
+//		} else {
+//			botright.x = x;
+//			botright.y = y;
+//
+//			frame_counter++;
+//			char filename[300];
+//			sprintf(filename, IMG_PATH_FORMAT, frame_counter);
+//		
+//			cvtColor(frame, imgToSave, CV_RGB2GRAY);
+//			Rect roiRect(topleft, botright);
+//			Mat roiImg = imgToSave(roiRect);
+//			imwrite(filename, roiImg);
+//			//fprintf(outfile, "%d.bmp 1 0 0 %d %d\n", frame_counter, roiRect.width, roiRect.height);
+//			fprintf(outfile, "%d.bmp\n", frame_counter);
+//			clickedOnce = false;
+//		}
+//		break;
+//	}
+//}
 
 void setContexts(TrafficLightDetector &detector) {
 	for (int i = 0; i < TL_COUNT; i++) {	
@@ -157,4 +156,12 @@ void drawEnforcement(Mat &targetImg, bool isEnforced, LightState lightState) {
 		addWeighted(targetImg, 1.0, blueMask, 2.0, 0, targetImg);
 	}
 	
+}
+
+void drawBoundedRects(Mat &targetImg, vector<Rect> boundedRects) {
+	for (int i = 0; i< boundedRects.size(); i++) {
+		if (boundedRects[i].width >= MIN_WIDTH && boundedRects[i].width <= MAX_WIDTH && boundedRects[i].height >= MIN_HEIGHT && boundedRects[i].height <= MAX_HEIGHT) {
+			rectangle(targetImg, boundedRects[i].tl(), boundedRects[i].br(), MY_COLOR_PURPLE, 2, 8, 0);
+		}
+	}
 }

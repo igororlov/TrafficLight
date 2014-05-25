@@ -7,7 +7,6 @@ void VehicleDetector::loadBackgroundImage(char *pathToBackgroundImg) {
 	if (backgroundImage.channels() > 1) {
 		cvtColor(backgroundImage, backgroundImage, CV_RGB2GRAY);
 	}
-	namedWindow("thresholded");
 }
 
 void VehicleDetector::loadMaskImage(char *pathToMaskFile) {
@@ -16,8 +15,7 @@ void VehicleDetector::loadMaskImage(char *pathToMaskFile) {
 	maskArea = sumPixels.val[0] / 255;
 }
 
-RNG rng(12345);
-bool VehicleDetector::backgroundDetect(const Mat& grayFrame, Mat& output) {
+bool VehicleDetector::backgroundDetect(const Mat& grayFrame, vector<Rect> &boundedRects) {
 
 	Mat differenceImage;
 	absdiff(grayFrame, backgroundImage, differenceImage);
@@ -30,16 +28,13 @@ bool VehicleDetector::backgroundDetect(const Mat& grayFrame, Mat& output) {
 	morphologyEx(thresholdedImage, thresholdedImage, MORPH_OPEN, element);
 	//erode(thresholdedImage, thresholdedImage, element);
 	
-	thresholdedImage.copyTo(output, mask);
+	Mat maskedThresholded;
+	thresholdedImage.copyTo(maskedThresholded, mask);
 
-	
-	Scalar sumPixels = sum(output);
+	Scalar sumPixels = sum(maskedThresholded);
 	double whitePixelsCount = sumPixels.val[0] / 255;
 	bool isEnforced = ( whitePixelsCount / maskArea ) > ENFORCEMENT_RATIO_THRESHOLD;
 	
-	cvtColor(output, output, CV_GRAY2RGB);
-	imshow("thresholded", output);
-
 	// Find bounded rects
 	vector<vector<Point> > contours;
 	vector<Vec4i> hierarchy;
@@ -51,22 +46,12 @@ bool VehicleDetector::backgroundDetect(const Mat& grayFrame, Mat& output) {
 	vector<Point2f>center( contours.size() );
 	vector<float>radius( contours.size() );
 
-	for( int i = 0; i < contours.size(); i++ ) { 
-		approxPolyDP( Mat(contours[i]), contours_poly[i], 3, true );
-		boundRect[i] = boundingRect( Mat(contours_poly[i]) );
-		//minEnclosingCircle( (Mat)contours_poly[i], center[i], radius[i] );
+	for (int i = 0; i < contours.size(); i++) { 
+		approxPolyDP(Mat(contours[i]), contours_poly[i], 3, true);
+		boundRect[i] = boundingRect(Mat(contours_poly[i]));
 	}
-
-	/// Draw polygonal contour + bonding rects + circles
-	Mat drawing(grayFrame);
-	cvtColor(drawing, drawing, CV_GRAY2RGB);
-	for( int i = 0; i< contours.size(); i++ ) {
-		Scalar color = Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
-		//drawContours( drawing, contours_poly, i, color, 1, 8, vector<Vec4i>(), 0, Point() );
-		rectangle( drawing, boundRect[i].tl(), boundRect[i].br(), color, 2, 8, 0 );
-		//circle( drawing, center[i], (int)radius[i], color, 2, 8, 0 );
-	}
-	//drawing.copyTo(output);
+	
+	boundedRects = boundRect;
 
 	return isEnforced;
 }

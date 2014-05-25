@@ -9,6 +9,7 @@
 
 using namespace cv;
 
+#define MY_COLOR_PURPLE Scalar(255,0,255)
 #define MY_COLOR_RED Scalar(0,0,255)
 #define MY_COLOR_GREEN Scalar(0,255,0)
 #define MY_COLOR_YELLOW Scalar(60,255,255)
