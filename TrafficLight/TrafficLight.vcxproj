@@ -148,6 +148,7 @@
     <ClCompile Include="TLVideoWriter.cpp" />
     <ClCompile Include="TrafficLight.cpp" />
     <ClCompile Include="TrafficLightDetector.cpp" />
+    <ClCompile Include="VehicleDetector.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Context.h" />
@@ -155,6 +156,7 @@
     <ClInclude Include="TLVideoWriter.h" />
     <ClInclude Include="TrafficLight.h" />
     <ClInclude Include="TrafficLightDetector.h" />
+    <ClInclude Include="VehicleDetector.h" />
     <ClInclude Include="VideoSettingsLocal.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

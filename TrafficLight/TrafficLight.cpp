@@ -2,12 +2,17 @@
 #include "TLVideoWriter.h"
 #include "VideoSettingsLocal.h"
 
+FILE *outfile = fopen("bad.txt", "w");
+
 using namespace cv;
 
 // Variables
 static VideoCapture capture;
 static TrafficLightDetector detector;
 static LucasKanadeTracker tracker;
+static VehicleDetector vehicleDetector;
+
+static Mat frame;
 
 int main() {
 	
@@ -29,16 +34,27 @@ int main() {
 	TLVideoWriter writer(SAVE_VIDEO_TO_FILE, OUTPUT_VIDEO_FILENAME, -1, rate * VIEW_SPEEDUP, frameSize);
 	
 	setContexts(detector);
-	
-	Mat previous, frame;
+	vehicleDetector.loadBackgroundImage(PATH_TO_BACKGROUND);
+	vehicleDetector.loadMaskImage(PATH_TO_DETECTION_MASK);
+
+	initMasks(PATH_TO_SHOW_MASK);
+
+	Mat previous, resultImage;
 	
 	while (capture.read(frame)) {
-		Mat result, concat;
+		frame.copyTo(resultImage);
+
+		Mat vehicleResult;
+
+		cvtColor(frame, frame, CV_RGB2GRAY);
+		LightState lightState = detector.brightnessDetect(frame);
+		bool isEnforced = vehicleDetector.backgroundDetect(frame, vehicleResult);
 		
-		detector.brightnessDetect(frame, result);
-		hconcat(frame, result, concat);
-		imshow(MAIN_WINDOW_NAME, concat);
-		writer.write(concat);
+		drawTrafficLights(resultImage, lightState);
+		drawEnforcement(resultImage, isEnforced, lightState);
+		imshow(MAIN_WINDOW_NAME, resultImage);
+		
+		writer.write(resultImage);
 
 		char c = waitKey(delay / VIEW_SPEEDUP);
 		if (c == 27) {
@@ -50,16 +66,42 @@ int main() {
 		previous.data = frame.data;
 	}
 
+	fclose(outfile);
+	
 	capture.release();
 	
 	return 0;
 }
 
+static Point topleft;
+static Point botright;
+static Mat imgToSave;
 void mouseCallback(int event, int x, int y, int flags, void* userdata) {
+	static int frame_counter = 0;
+	static bool clickedOnce = false;
 	switch (event) {
 	case EVENT_LBUTTONDOWN:
-		printf("(%d,%d)\n", x, y);
-	default:
+		if (!clickedOnce) {
+			printf("(%d,%d)\n", x, y);
+			topleft.x = x;
+			topleft.y = y;
+			clickedOnce = true;
+		} else {
+			botright.x = x;
+			botright.y = y;
+
+			frame_counter++;
+			char filename[300];
+			sprintf(filename, IMG_PATH_FORMAT, frame_counter);
+		
+			cvtColor(frame, imgToSave, CV_RGB2GRAY);
+			Rect roiRect(topleft, botright);
+			Mat roiImg = imgToSave(roiRect);
+			imwrite(filename, roiImg);
+			//fprintf(outfile, "%d.bmp 1 0 0 %d %d\n", frame_counter, roiRect.width, roiRect.height);
+			fprintf(outfile, "%d.bmp\n", frame_counter);
+			clickedOnce = false;
+		}
 		break;
 	}
 }
@@ -69,4 +111,50 @@ void setContexts(TrafficLightDetector &detector) {
 		contexts[i].lightState = UNDEFINED;
 		detector.contexts.push_back(contexts[i]);
 	}
+}
+
+void drawTrafficLights(Mat &targetImg, LightState lightState) {
+	switch (lightState) {
+	case GREEN:
+		circle(targetImg, GREEN_DRAW_CENTER, LIGHT_DRAW_RADIUS, MY_COLOR_GREEN, -1);
+		break;
+	case YELLOW:
+		circle(targetImg, YELLOW_DRAW_CENTER, LIGHT_DRAW_RADIUS, MY_COLOR_YELLOW, -1);
+		break;
+	case RED:
+		circle(targetImg, RED_DRAW_CENTER, LIGHT_DRAW_RADIUS, MY_COLOR_RED, -1);
+		break;
+	case REDYELLOW:
+		circle(targetImg, YELLOW_DRAW_CENTER, LIGHT_DRAW_RADIUS, MY_COLOR_YELLOW, -1);
+		circle(targetImg, RED_DRAW_CENTER, LIGHT_DRAW_RADIUS, MY_COLOR_RED, -1);
+		break;
+	}
+}
+
+static Mat showMask, redMask, blueMask, greenMask;
+void initMasks(char *pathToShowMask) {
+	/* Initialize show mask */
+	showMask = loadMask(pathToShowMask);
+	Mat grayMask(showMask);
+	cvtColor(showMask, showMask, CV_GRAY2RGB);
+	showMask.copyTo(redMask);
+	showMask.copyTo(blueMask);
+	showMask.copyTo(greenMask);
+	redMask.setTo(MY_COLOR_RED, grayMask);
+	blueMask.setTo(MY_COLOR_BLUE, grayMask);
+	greenMask.setTo(MY_COLOR_GREEN, grayMask);
+}
+
+void drawEnforcement(Mat &targetImg, bool isEnforced, LightState lightState) {
+	
+	addWeighted(targetImg, 1.0, showMask, -0.5, 0, targetImg);
+	if (isEnforced) {
+		if (lightState == GREEN)
+			addWeighted(targetImg, 1.0, greenMask, 2.0, 0, targetImg);
+		else
+			addWeighted(targetImg, 1.0, redMask, 2.0, 0, targetImg);
+	} else {
+		addWeighted(targetImg, 1.0, blueMask, 2.0, 0, targetImg);
+	}
+	
 }

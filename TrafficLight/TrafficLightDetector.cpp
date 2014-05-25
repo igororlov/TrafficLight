@@ -3,18 +3,19 @@
 
 TrafficLightDetector::TrafficLightDetector() {}
 
-void TrafficLightDetector::brightnessDetect(const Mat &input, Mat &output) {
+LightState TrafficLightDetector::brightnessDetect(const Mat &input) {
 	
-	cvtColor(input, output, CV_RGB2GRAY);
+	Mat tmpImage;
+	input.copyTo(tmpImage);
 
 	for (int i = 0; i < contexts.size(); i++) {
 		Context context = contexts[i];
-		Mat roi = output(Rect(context.topLeft, context.botRight));
+		Mat roi = tmpImage(Rect(context.topLeft, context.botRight));
 		threshold(roi, roi, 0, 255, THRESH_BINARY | THRESH_OTSU);
 
-		bool display_red = (getBrightnessRatioInCircle(output, context.redCenter, context.lampRadius) > 0.5);
-		bool display_yellow = (getBrightnessRatioInCircle(output, context.yellowCenter, context.lampRadius) > 0.5);
-		bool display_green = (getBrightnessRatioInCircle(output, context.greenCenter, context.lampRadius) > 0.5);
+		bool display_red = (getBrightnessRatioInCircle(tmpImage, context.redCenter, context.lampRadius) > 0.5);
+		bool display_yellow = (getBrightnessRatioInCircle(tmpImage, context.yellowCenter, context.lampRadius) > 0.5);
+		bool display_green = (getBrightnessRatioInCircle(tmpImage, context.greenCenter, context.lampRadius) > 0.5);
 
 		int currentLightsCode = getCurrentLightsCode(display_red, display_yellow, display_green);
 		contexts[i].lightState = determineState(contexts[i].lightState, currentLightsCode);
@@ -22,10 +23,7 @@ void TrafficLightDetector::brightnessDetect(const Mat &input, Mat &output) {
 		// Make ROI black
 		roi.setTo(Scalar(0));
 	}
-
-	cvtColor(output, output, CV_GRAY2RGB);
-
-	drawTrafficLights(output);
+	return contexts[0].lightState;
 }
 
 double getBrightnessRatioInCircle(const Mat &input, const Point center, const int radius) {
@@ -54,33 +52,7 @@ LightState determineState(LightState previousState, int currentLightsCode) {
 	return STATE_TRANSITION_MATRIX[previousState][currentLightsCode];	
 }
 
-void TrafficLightDetector::drawTrafficLights(Mat &output) {
 
-	for (int i = 0; i < contexts.size(); i++) {
-		
-		rectangle(output, contexts[i].topLeft, contexts[i].botRight, MY_COLOR_WHITE, 1);
-		
-		int display_radius = contexts[i].lampRadius;
-		switch (contexts[i].lightState) {
-		case GREEN:
-			circle(output, contexts[i].greenCenter, display_radius, MY_COLOR_GREEN, -1);
-			break;
-		case YELLOW:
-			circle(output, contexts[i].yellowCenter, display_radius, MY_COLOR_YELLOW, -1);
-			break;
-		case RED:
-			circle(output, contexts[i].redCenter, display_radius, MY_COLOR_RED, -1);
-			break;
-		case REDYELLOW:
-			circle(output, contexts[i].yellowCenter, display_radius, MY_COLOR_YELLOW, -1);
-			circle(output, contexts[i].redCenter, display_radius, MY_COLOR_RED, -1);
-			break;
-		default:
-			printf("State not defined.\n");
-			break;
-		}
-	}
-}
 
 /*
  *  Attempt to recognize by color tracking in HSV. Detects good only green, but need to
